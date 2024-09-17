@@ -1,5 +1,6 @@
 from pyngrok import ngrok
-
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import urllib.parse
 
 
 #clases de servidores http y tcp
@@ -9,11 +10,65 @@ class server():
         self.host = host
         self.port = port
 
-class http_server(server):
-    def __init__(self, protocol):
-        self.protocol = protocol
 
-class tcp_server():
+class RequestHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == '/':
+            self.send_response(200)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(b"Servidor en funcionamiento")
+        else:
+            self.send_response(404)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(b"Ruta no encontrada")
+
+    def do_POST(self):
+        if self.path.startswith('/coordenadas'):
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length).decode('utf-8')
+
+            print(f"Coordenadas recibidas: {post_data}")
+
+            self.send_response(200)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(b"Mensaje recibido")
+        else:
+            self.send_response(404)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(b"Ruta no encontrada")
+    
+
+class HTTPServerWrapper:
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+
+    def run(self):
+        server_address = (self.host, self.port)
+        httpd = HTTPServer(server_address, RequestHandler)
+        print(f"Servidor HTTP corriendo en {self.host}:{self.port}")
+        httpd.serve_forever()
+    
+
+class HTTPServerWrapper:
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+
+    def run(self):
+        server_address = (self.host, self.port)
+        httpd = HTTPServer(server_address, RequestHandler)
+        print(f"Servidor HTTP corriendo en {self.host}:{self.port}")
+        httpd.serve_forever()
+
+        
+
+
+class tcp_server(server):
     def __init__(self, protocol):
         self.protocol = protocol
 
