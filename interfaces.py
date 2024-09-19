@@ -10,6 +10,7 @@ import requests
 import time
 from server import HTTPServerWrapper
 
+
 openTunnel = True
 defaultTunnelSettingsFlag = True
 defaultServerSettingsFlag = True
@@ -177,7 +178,8 @@ class tunnel_creator_interface():
             )
             startServerButton.destroy()
 
-            
+        def stopSever():
+            pass
 
 
         def generate_url(host,port,protocol):
@@ -192,13 +194,13 @@ class tunnel_creator_interface():
             show_generated_url = Text(tunnelWind, height=10, width=50)
             show_generated_url.pack(pady=20)
             show_generated_url.insert(tk.END, url)
-
+            
             startServerButton = Button(tunnelWind, 
                 text="Start Server", 
                 width=20,
                 bg="#999595", 
                 fg="black",
-                command=lambda: start_server_interface(url)
+                command=lambda: start_server_interface(url,startServerButton)
             )
             startServerButton.pack(pady=15)
 
@@ -215,7 +217,7 @@ class tunnel_creator_interface():
 
 
 
-        def start_server_interface(url):
+        def start_server_interface(url,startServerButton):
 
             newServerWind = server_listening_interface(url)
             newServerWind.run_server_interface()
@@ -260,23 +262,21 @@ class tunnel_creator_interface():
         if defaultTunnelSettingsFlag == True:
             start_generating_thread_url(**defaultTunnelSettings)
         else:
-            start_generating_url()
+            pass  #custumed settings case
 
         
 
 
         tunnelWind.mainloop()
-
 class server_listening_interface():
     def __init__(self, url):
         self.url = url
+        self.server_instance = None  
 
     def run_server_interface(self):
-
-        def start_http_server(host, port):
-            server = HTTPServerWrapper(host, port)
-            server.run()
-
+        def start_http_server(host, port, widget):
+            self.server_instance = HTTPServerWrapper(host, port)  
+            self.server_instance.run(widget)
 
 
         def verify_active_url(url):
@@ -297,44 +297,40 @@ class server_listening_interface():
                     root.destroy()
                     break
 
-
         if defaultServerSettingsFlag:
-            server_maager_thread = threading.Thread(target=lambda: start_http_server(defaultServerSettings['host'],defaultServerSettings['port']))
-            server_maager_thread.start()
+            serverWind = tk.Tk()
+            serverWind.title("AffaTrack HTTP server listening..")
+            serverWind.geometry("800x700")
+            serverWind.configure(bg="black")
+
+          
+            title = tk.Label(serverWind, text="AffaTrack", bg="black", fg="red", font=("Helvetica", 40, "bold"), anchor="center")
+            title.pack(side="top", fill="both", anchor="n", pady=10)
+            message1 = Label(serverWind, text="Server listening on {}, port: {} ...".format(defaultServerSettings['host'], defaultServerSettings['port']),
+                                 bg="black", fg="white", font=15, anchor="center")
+            message1.pack(pady=20)
+
+            coordinatesWidgetPrints = Text(serverWind, height=20, width=80)
+            coordinatesWidgetPrints.pack(pady=5)
+            server_manager_thread = threading.Thread(target=lambda: start_http_server(defaultServerSettings['host'], defaultServerSettings['port'], coordinatesWidgetPrints))
+            server_manager_thread.start()
 
             if verify_active_url(self.url):
-                print("hola")
-                serverWind = tk.Tk()
-                serverWind.title("AffaTrack HTTP server listening..")
-                serverWind.geometry("800x500")
-                serverWind.configure(bg="black")
-
-                title = tk.Label(serverWind, 
-                    text="AffaTrack",
-                    bg="black", 
-                    fg="red", 
-                    font=("Helvetica", 40, "bold"), 
-                    anchor="center"
-                )
-                title.pack(side="top", fill="both", anchor="n", pady=10)
-                message1 = Label(serverWind,
-                    text="Server listening on {}, port: {} ...".format(defaultServerSettings['host'],defaultServerSettings['port']),
-                    bg = "black",
-                    fg = "white",
-                    font=15,
-                    anchor="center"
-                )  
-                message1.pack(pady=20)
-
             
+                stop_server_button = Button(serverWind, text="Stop Server", command=self.stop_server)
+                stop_server_button.pack(pady=20)
 
                 ngrok_monitor_thread = threading.Thread(target=close_window_case_url_false, args=(serverWind, self.url, message1))
                 ngrok_monitor_thread.daemon = True
                 ngrok_monitor_thread.start()
 
-
-
                 serverWind.mainloop()
+
+    def stop_server(self):
+        if self.server_instance:
+            self.server_instance.stop()
+        else:
+            print("No server instance to stop.")
             
 
 

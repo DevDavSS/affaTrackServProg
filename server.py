@@ -1,7 +1,8 @@
 from pyngrok import ngrok
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import urllib.parse
-
+from shared import printCoordenatesInterface
+import threading
 
 #clases de servidores http y tcp
 
@@ -12,6 +13,11 @@ class server():
 
 
 class RequestHandler(BaseHTTPRequestHandler):
+    def __init__(self, widget, *args, **kwargs):
+        self.widget = widget
+        super().__init__(*args, **kwargs)
+
+
     def do_GET(self):
         if self.path == '/':
             self.send_response(200)
@@ -25,11 +31,18 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(b"Ruta no encontrada")
 
     def do_POST(self):
+
+        def printCordInterFunc(post_data):
+            printCoordenatesInterface(post_data, self.widget)
+        
         if self.path.startswith('/coordenadas'):
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length).decode('utf-8')
 
             print(f"Coordenadas recibidas: {post_data}")
+
+            printCordsMangerThread = threading.Thread(target=printCordInterFunc, args=(post_data,))
+            printCordsMangerThread.start()
 
             self.send_response(200)
             self.send_header('Content-type', 'text/plain')
@@ -40,32 +53,32 @@ class RequestHandler(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'text/plain')
             self.end_headers()
             self.wfile.write(b"Ruta no encontrada")
-    
+
 
 class HTTPServerWrapper:
-    def __init__(self, host, port):
+    def __init__(self, host=None, port=None):
         self.host = host
         self.port = port
 
-    def run(self):
+        self.httpd = None  
+
+    def run(self, widget):
         server_address = (self.host, self.port)
-        httpd = HTTPServer(server_address, RequestHandler)
+        self.httpd = HTTPServer(server_address, lambda *args, **kwargs: RequestHandler(widget, *args, **kwargs))
         print(f"Servidor HTTP corriendo en {self.host}:{self.port}")
-        httpd.serve_forever()
-    
-
-class HTTPServerWrapper:
-    def __init__(self, host, port):
-        self.host = host
-        self.port = port
-
-    def run(self):
-        server_address = (self.host, self.port)
-        httpd = HTTPServer(server_address, RequestHandler)
-        print(f"Servidor HTTP corriendo en {self.host}:{self.port}")
-        httpd.serve_forever()
-
         
+        try:
+            self.httpd.serve_forever()  # Start the server
+        except Exception as e:
+            print(f"Error while running the server: {e}")
+
+    def stop(self):
+        if self.httpd:
+            self.httpd.shutdown()  # shutdown the serverr
+            self.httpd.server_close()  # close the server
+            print("Servidor HTTP cerrado")
+        else:
+            print("No existe httpd")
 
 
 class tcp_server(server):
