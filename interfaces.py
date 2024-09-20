@@ -9,6 +9,7 @@ import server
 import requests
 import time
 from server import HTTPServerWrapper
+from portScanning import portScanning
 
 
 openTunnel = True
@@ -24,7 +25,15 @@ defaultServerSettings = {
     'host' : '0.0.0.0',
     'port' : 1945
 }
-
+customedTunnelSettings = {
+    'host' : "0.0.0.0",
+    'port' : 1945,
+    'protocol' : "http"
+}
+customedServerSettings = {
+    'host' : '0.0.0.0',
+    'port' : 1945
+}
 
 class activation_interface():
     def run_activation_interface(self):
@@ -116,6 +125,10 @@ class mainInterface():
             newServerWind = tunnel_creator_interface()
             newServerWind.run_tunnel_creator_interface()
 
+        def start_settings_wind():
+            mainWind.withdraw()
+            newSettingsWInd = settings_interface()
+            newSettingsWInd.run_settings_interface()
 
         mainWind = tk.Tk()
         mainWind.title("AffaTrack main")
@@ -143,6 +156,7 @@ class mainInterface():
             text="Server Settings", 
             width=20 , 
             bg="#999595", fg="black",
+            command=start_settings_wind
             ).pack(pady=30)
 
 
@@ -333,6 +347,111 @@ class server_listening_interface():
             print("No server instance to stop.")
             
 
+
+class settings_interface():
+
+
+
+
+
+    def run_settings_interface(self):
+
+
+
+
+        settingsWind = tk.Tk()
+        
+        settingsWind.title("AffaTrack Settings")
+        settingsWind.geometry("800x500")
+        settingsWind.configure(bg="black")
+        settingsWind.grid_columnconfigure(0, weight=1)
+        settingsWind.grid_columnconfigure(1, weight=1)
+        settingsWind.grid_columnconfigure(2, weight=1)
+    
+        title = tk.Label(settingsWind, text="AffaTrack", bg="black", fg="red", font=("Helvetica", 40, "bold"), anchor="center")
+        title.grid(column=0, row=0, columnspan=3, pady=10, sticky="n")
+
+        tunnelPortLabel =Label(settingsWind,
+            text="TUNNEL PORT",
+            font=15,
+            fg="white",
+            bg="black"
+        )
+        tunnelPortLabel.grid(column=0,row=2,pady=10,padx=33)
+        tunnelPortEntrySpace = Entry(settingsWind,width=10)
+        tunnelPortEntrySpace.grid(column=0,row=3,pady=5)
+
+        serverPortLabel =Label(settingsWind,
+            text="SERVER PORT",
+            font=15,
+            fg="white",
+            bg="black"
+        )
+        serverPortLabel.grid(column=2,row=2,pady=10,padx=33)
+        serverPortEntrySpace = Entry(settingsWind,width=10)
+        serverPortEntrySpace.grid(column=2,row=3,pady=5)
+
+        saveSettingsButton = Button(settingsWind,
+            text="Save Settings",
+            width=20,
+            bg="#999595", 
+            fg="black",
+            command=lambda: verifyNewSettings(tunnelPortEntrySpace, serverPortEntrySpace)
+        )
+        saveSettingsButton.grid(column=1,row=5,pady=15)
+        resetDefaultSettingsButton = Button(settingsWind,
+            text="Default Settings",
+            width=20,
+            bg="#999595", 
+            fg="black"
+        )
+        resetDefaultSettingsButton.grid(column=0,row=5,pady=15)
+
+        cancelButton = Button(settingsWind,
+            text="Cancel",
+            width=20,
+            bg="#999595", 
+            fg="black"
+        )
+        cancelButton.grid(column=2,row=5,pady=15)
+        errorLabel = Label(settingsWind,
+            text="Error",
+            width=20,
+            bg="red", 
+            fg="black"
+        )
+
+        def verifyNewSettings(tunnelPortEntrySpace, serverPortEntrySpace):
+
+            if tunnelPortEntrySpace.get() and serverPortEntrySpace.get():
+   
+                if tunnelPortEntrySpace.get() == serverPortEntrySpace.get():
+                    try:
+                        localPorts = []
+                        newLocalPorts = portScanning()
+                        localPorts = newLocalPorts.scan_open_ports()
+                        givenPort = serverPortEntrySpace.get() 
+                        if int(givenPort) in localPorts:
+                            errorLabel.config(
+                                text="The port is alrady in use"
+                            )
+                            errorLabel.grid(column=1, row=6)
+                        else:
+                            pass
+
+
+                    except Exception as e:
+                        errorLabel.config(
+                            text=e
+                        )
+                        errorLabel.grid(column=1, row=6)
+                else:
+                    errorLabel.grid(column=1, row=6)
+            else:
+                errorLabel.grid(column=1, row=6)
+
+        
+        settingsWind.mainloop()
 
 
 window = mainInterface()
