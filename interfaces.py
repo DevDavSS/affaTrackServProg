@@ -27,12 +27,12 @@ defaultServerSettings = {
 }
 customedTunnelSettings = {
     'host' : "0.0.0.0",
-    'port' : 1945,
+    'port' : 0,
     'protocol' : "http"
 }
 customedServerSettings = {
     'host' : '0.0.0.0',
-    'port' : 1945
+    'port' : 0
 }
 
 class activation_interface():
@@ -276,7 +276,7 @@ class tunnel_creator_interface():
         if defaultTunnelSettingsFlag == True:
             start_generating_thread_url(**defaultTunnelSettings)
         else:
-            pass  #custumed settings case
+            start_generating_thread_url(**customedServerSettings)
 
         
 
@@ -296,7 +296,7 @@ class server_listening_interface():
         def verify_active_url(url):
             try:
                 response = requests.get(url)
-                print(f"Verificando URL: {url}, Código de estado: {response.status_code}")
+                print(f"Verificando URL: {url}, Codigo de estado: {response.status_code}")
                 if response.status_code == 200:
                     return True
             except requests.ConnectionError as e:
@@ -311,7 +311,7 @@ class server_listening_interface():
                     root.destroy()
                     break
 
-        if defaultServerSettingsFlag:
+        if defaultServerSettingsFlag == True:
             serverWind = tk.Tk()
             serverWind.title("AffaTrack HTTP server listening..")
             serverWind.geometry("800x700")
@@ -339,6 +339,35 @@ class server_listening_interface():
                 ngrok_monitor_thread.start()
 
                 serverWind.mainloop()
+        else:
+            serverWind = tk.Tk()
+            serverWind.title("AffaTrack HTTP server listening..")
+            serverWind.geometry("800x700")
+            serverWind.configure(bg="black")
+
+          
+            title = tk.Label(serverWind, text="AffaTrack", bg="black", fg="red", font=("Helvetica", 40, "bold"), anchor="center")
+            title.pack(side="top", fill="both", anchor="n", pady=10)
+            message1 = Label(serverWind, text="Server listening on {}, port: {} ...".format(customedServerSettings['host'], customedServerSettings['port']),
+                                 bg="black", fg="white", font=15, anchor="center")
+            message1.pack(pady=20)
+
+            coordinatesWidgetPrints = Text(serverWind, height=20, width=80)
+            coordinatesWidgetPrints.pack(pady=5)
+            server_manager_thread = threading.Thread(target=lambda: start_http_server(customedServerSettings['host'], customedServerSettings['port'], coordinatesWidgetPrints))
+            server_manager_thread.start()
+
+            if verify_active_url(self.url):
+            
+                stop_server_button = Button(serverWind, text="Stop Server", command=self.stop_server)
+                stop_server_button.pack(pady=20)
+
+                ngrok_monitor_thread = threading.Thread(target=close_window_case_url_false, args=(serverWind, self.url, message1))
+                ngrok_monitor_thread.daemon = True
+                ngrok_monitor_thread.start()
+
+                serverWind.mainloop()
+
 
     def stop_server(self):
         if self.server_instance:
@@ -350,14 +379,7 @@ class server_listening_interface():
 
 class settings_interface():
 
-
-
-
-
     def run_settings_interface(self):
-
-
-
 
         settingsWind = tk.Tk()
         
@@ -433,11 +455,17 @@ class settings_interface():
                         givenPort = serverPortEntrySpace.get() 
                         if int(givenPort) in localPorts:
                             errorLabel.config(
-                                text="The port is alrady in use"
+                                text="The port is already in use"
                             )
                             errorLabel.grid(column=1, row=6)
                         else:
-                            pass
+                            settingsWind.destroy()
+                            customedServerSettings["port"] = givenPort
+                            customedTunnelSettings["port"] = givenPort
+                            defaultServerSettingsFlag = False
+                            defaultTunnelSettingsFlag = False
+                            mainWindow = mainInterface()
+                            mainWindow.run_main_interface()
 
 
                     except Exception as e:
