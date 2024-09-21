@@ -181,6 +181,7 @@ class tunnel_creator_interface():
 
 
 
+
         def generate_url(host,port,protocol):
 
 
@@ -297,6 +298,7 @@ class server_listening_interface():
                     message1.config(text='The tunnel has been closed.')
                     root.destroy()
                     break
+                time.sleep(20)
 
         if config.defaultServerSettingsFlag == True:
             serverWind = tk.Tk()
@@ -323,7 +325,7 @@ class server_listening_interface():
                 stop_server_button = Button(serverWind, text="Stop Server",
                     width=20 , 
                     bg="#999595", fg="black", 
-                     command=self.stop_server
+                     command=lambda: self.stop_server(serverWind)
                 )
                 stop_server_button.pack(pady=20)
                 ngrok_monitor_thread = threading.Thread(target=close_window_case_url_false, args=(serverWind, self.url, message1))
@@ -352,12 +354,12 @@ class server_listening_interface():
             server_manager_thread = threading.Thread(target=lambda: start_http_server(serverHost, int(serverPort), coordinatesWidgetPrints))
             server_manager_thread.start()
 
-            if verify_active_url(self.url):
+            if verify_active_url(self.url) :
             
                 stop_server_button = Button(serverWind, text="Stop Server",
                     width=20 , 
                     bg="#999595", fg="black", 
-                     command=self.stop_server
+                     command=lambda: self.stop_server(serverWind)
                 )
                 stop_server_button.pack(pady=20)
 
@@ -368,9 +370,9 @@ class server_listening_interface():
                 serverWind.mainloop()
 
 
-    def stop_server(self):
-    
-        if self.server_instance:
+    def stop_server(self, serverWind):
+        serverWind.destroy()
+        if self.server_instance :
             self.server_instance.stop()
             configP.serverRunning = False
         else:
@@ -495,6 +497,7 @@ class settings_interface():
                         errorLabel.config(
                             text=e
                         )
+                        print(e)
                         errorLabel.grid(column=1, row=6)
                 else:
                     errorLabel.grid(column=1, row=6)
