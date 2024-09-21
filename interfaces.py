@@ -10,30 +10,13 @@ import requests
 import time
 from server import HTTPServerWrapper
 from portScanning import portScanning
+from settings import config
 
 
-openTunnel = True
-defaultTunnelSettingsFlag = True
-defaultServerSettingsFlag = True
 
-defaultTunnelSettings = {
-    'host' : "0.0.0.0",
-    'port' : 1945,
-    'protocol' : "http"
-}
-defaultServerSettings = {
-    'host' : '0.0.0.0',
-    'port' : 1945
-}
-customedTunnelSettings = {
-    'host' : "0.0.0.0",
-    'port' : 0,
-    'protocol' : "http"
-}
-customedServerSettings = {
-    'host' : '0.0.0.0',
-    'port' : 0
-}
+#openTunnel = True
+configP = config()
+
 
 class activation_interface():
     def run_activation_interface(self):
@@ -130,6 +113,9 @@ class mainInterface():
             newSettingsWInd = settings_interface()
             newSettingsWInd.run_settings_interface()
 
+        def exitProgram():
+            sys.exit()
+
         mainWind = tk.Tk()
         mainWind.title("AffaTrack main")
         mainWind.geometry("800x500")
@@ -159,17 +145,11 @@ class mainInterface():
             command=start_settings_wind
             ).pack(pady=30)
 
-
-        helpButton = Button(mainWind, 
-            text="Help", 
-            width=20 , 
-            bg="#999595", fg="black",
-            ).pack(pady=30)
-
         exitButton = Button(mainWind, 
             text="Exit", 
             width=20 , 
             bg="#999595", fg="black",
+            command=exitProgram
             ).pack(pady=30)
         
 
@@ -181,19 +161,24 @@ class mainInterface():
 class tunnel_creator_interface():
     def run_tunnel_creator_interface(self):
 
+        def start_menu_interface():
+            tunnelWind.destroy()
+            mainWindow = mainInterface()
+            mainWindow.run_main_interface()
+
 
         def stopTunnelUrl(new_url,http_tunel, show_generated_url, stopTunnelButton, startServerButton ):
             new_url.stop_http_tunnel(http_tunel) #objeto new_url llama al metodo stop_http_tunnel para cerra el tunel
-            
+            startServerButton.destroy()         
             generating_url_message.config(text="The tunnel has been closed")
             show_generated_url.destroy()
             stopTunnelButton.config(
-                text="Menu"
+                text="Menu",
+                command=start_menu_interface
             )
-            startServerButton.destroy()
+            configP.serverRunning = False
 
-        def stopSever():
-            pass
+
 
 
         def generate_url(host,port,protocol):
@@ -229,12 +214,13 @@ class tunnel_creator_interface():
             print(hilo)
             stopTunnelButton.pack(pady=15)
 
-
-
         def start_server_interface(url,startServerButton):
+            if not configP.serverRunning:
+                newServerWind = server_listening_interface(url)
+                newServerWind.run_server_interface()
 
-            newServerWind = server_listening_interface(url)
-            newServerWind.run_server_interface()
+            else:
+                pass
 
 
         def start_generating_thread_url(host,port,protocol):
@@ -273,10 +259,10 @@ class tunnel_creator_interface():
         progress_bar.pack(pady=20)
         progress_bar.start()
 
-        if defaultTunnelSettingsFlag == True:
-            start_generating_thread_url(**defaultTunnelSettings)
+        if config.defaultTunnelSettingsFlag == True:
+            start_generating_thread_url(**configP.defaultTunnelSettings)
         else:
-            start_generating_thread_url(**customedServerSettings)
+            start_generating_thread_url(**configP.customedTunnelSettings)
 
         
 
@@ -288,6 +274,7 @@ class server_listening_interface():
         self.server_instance = None  
 
     def run_server_interface(self):
+        configP.serverRunning = True
         def start_http_server(host, port, widget):
             self.server_instance = HTTPServerWrapper(host, port)  
             self.server_instance.run(widget)
@@ -296,7 +283,7 @@ class server_listening_interface():
         def verify_active_url(url):
             try:
                 response = requests.get(url)
-                print(f"Verificando URL: {url}, Codigo de estado: {response.status_code}")
+                print(f"Verificando URL: {url}, Codigo de estados: {response.status_code}")
                 if response.status_code == 200:
                     return True
             except requests.ConnectionError as e:
@@ -311,33 +298,37 @@ class server_listening_interface():
                     root.destroy()
                     break
 
-        if defaultServerSettingsFlag == True:
+        if config.defaultServerSettingsFlag == True:
             serverWind = tk.Tk()
             serverWind.title("AffaTrack HTTP server listening..")
             serverWind.geometry("800x700")
             serverWind.configure(bg="black")
 
+            serverHost = configP.defaultServerSettings['host']
+            serverPort = configP.defaultServerSettings['port']
+
           
             title = tk.Label(serverWind, text="AffaTrack", bg="black", fg="red", font=("Helvetica", 40, "bold"), anchor="center")
             title.pack(side="top", fill="both", anchor="n", pady=10)
-            message1 = Label(serverWind, text="Server listening on {}, port: {} ...".format(defaultServerSettings['host'], defaultServerSettings['port']),
+            message1 = Label(serverWind, text="Server listening on {}, port: {} ...".format(serverHost, int(serverPort)),
                                  bg="black", fg="white", font=15, anchor="center")
             message1.pack(pady=20)
 
             coordinatesWidgetPrints = Text(serverWind, height=20, width=80)
             coordinatesWidgetPrints.pack(pady=5)
-            server_manager_thread = threading.Thread(target=lambda: start_http_server(defaultServerSettings['host'], defaultServerSettings['port'], coordinatesWidgetPrints))
+            server_manager_thread = threading.Thread(target=lambda: start_http_server(serverHost, int(serverPort), coordinatesWidgetPrints))
             server_manager_thread.start()
 
             if verify_active_url(self.url):
-            
-                stop_server_button = Button(serverWind, text="Stop Server", command=self.stop_server)
+                stop_server_button = Button(serverWind, text="Stop Server",
+                    width=20 , 
+                    bg="#999595", fg="black", 
+                     command=self.stop_server
+                )
                 stop_server_button.pack(pady=20)
-
                 ngrok_monitor_thread = threading.Thread(target=close_window_case_url_false, args=(serverWind, self.url, message1))
                 ngrok_monitor_thread.daemon = True
                 ngrok_monitor_thread.start()
-
                 serverWind.mainloop()
         else:
             serverWind = tk.Tk()
@@ -345,21 +336,29 @@ class server_listening_interface():
             serverWind.geometry("800x700")
             serverWind.configure(bg="black")
 
-          
+            serverHost = configP.customedServerSettings['host']
+            serverPort = configP.customedServerSettings['port']
+
+            
             title = tk.Label(serverWind, text="AffaTrack", bg="black", fg="red", font=("Helvetica", 40, "bold"), anchor="center")
             title.pack(side="top", fill="both", anchor="n", pady=10)
-            message1 = Label(serverWind, text="Server listening on {}, port: {} ...".format(customedServerSettings['host'], customedServerSettings['port']),
-                                 bg="black", fg="white", font=15, anchor="center")
+            message1 = Label(serverWind, text="Server listening on {}, port: {} ...".format(serverHost, int(serverPort)),
+                                 bg="black", fg="white", font=15, anchor="center")#error en config.customed.....
             message1.pack(pady=20)
 
             coordinatesWidgetPrints = Text(serverWind, height=20, width=80)
             coordinatesWidgetPrints.pack(pady=5)
-            server_manager_thread = threading.Thread(target=lambda: start_http_server(customedServerSettings['host'], customedServerSettings['port'], coordinatesWidgetPrints))
+
+            server_manager_thread = threading.Thread(target=lambda: start_http_server(serverHost, int(serverPort), coordinatesWidgetPrints))
             server_manager_thread.start()
 
             if verify_active_url(self.url):
             
-                stop_server_button = Button(serverWind, text="Stop Server", command=self.stop_server)
+                stop_server_button = Button(serverWind, text="Stop Server",
+                    width=20 , 
+                    bg="#999595", fg="black", 
+                     command=self.stop_server
+                )
                 stop_server_button.pack(pady=20)
 
                 ngrok_monitor_thread = threading.Thread(target=close_window_case_url_false, args=(serverWind, self.url, message1))
@@ -370,8 +369,10 @@ class server_listening_interface():
 
 
     def stop_server(self):
+    
         if self.server_instance:
             self.server_instance.stop()
+            configP.serverRunning = False
         else:
             print("No server instance to stop.")
             
@@ -380,6 +381,26 @@ class server_listening_interface():
 class settings_interface():
 
     def run_settings_interface(self):
+
+        def start_main_interface():
+            settingsWind.destroy()
+            mainWindow = mainInterface()
+            mainWindow.run_main_interface()
+
+        def reset_settings():
+            config.defaultServerSettingsFlag = True
+            config.defaultTunnelSettingsFlag = True
+            errorLabel.config(
+                text="Default settings",
+                bg="green"
+            )
+            errorLabel.grid(column=1,row=7)
+            serverPortEntrySpace.delete(0, tk.END)
+            tunnelPortEntrySpace.delete(0, tk.END)
+            settingsWind.destroy()
+            mainWindow = mainInterface()
+            mainWindow.run_main_interface()
+
 
         settingsWind = tk.Tk()
         
@@ -425,7 +446,8 @@ class settings_interface():
             text="Default Settings",
             width=20,
             bg="#999595", 
-            fg="black"
+            fg="black",
+            command=reset_settings
         )
         resetDefaultSettingsButton.grid(column=0,row=5,pady=15)
 
@@ -433,7 +455,8 @@ class settings_interface():
             text="Cancel",
             width=20,
             bg="#999595", 
-            fg="black"
+            fg="black",
+            command=start_main_interface
         )
         cancelButton.grid(column=2,row=5,pady=15)
         errorLabel = Label(settingsWind,
@@ -446,8 +469,8 @@ class settings_interface():
         def verifyNewSettings(tunnelPortEntrySpace, serverPortEntrySpace):
 
             if tunnelPortEntrySpace.get() and serverPortEntrySpace.get():
-   
-                if tunnelPortEntrySpace.get() == serverPortEntrySpace.get():
+
+                if tunnelPortEntrySpace.get() == serverPortEntrySpace.get() and int(tunnelPortEntrySpace.get())<65535 and int(tunnelPortEntrySpace.get())>0:
                     try:
                         localPorts = []
                         newLocalPorts = portScanning()
@@ -460,10 +483,10 @@ class settings_interface():
                             errorLabel.grid(column=1, row=6)
                         else:
                             settingsWind.destroy()
-                            customedServerSettings["port"] = givenPort
-                            customedTunnelSettings["port"] = givenPort
-                            defaultServerSettingsFlag = False
-                            defaultTunnelSettingsFlag = False
+                            configP.customedServerSettings["port"] = givenPort
+                            configP.customedTunnelSettings["port"] = givenPort
+                            config.defaultServerSettingsFlag = False
+                            config.defaultTunnelSettingsFlag = False
                             mainWindow = mainInterface()
                             mainWindow.run_main_interface()
 
@@ -477,8 +500,10 @@ class settings_interface():
                     errorLabel.grid(column=1, row=6)
             else:
                 errorLabel.grid(column=1, row=6)
-
         
+
+
+    
         settingsWind.mainloop()
 
 
