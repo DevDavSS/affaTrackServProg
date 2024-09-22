@@ -2,7 +2,7 @@
 import socket
 import uuid
 import hashlib
-
+from cryptography.fernet import Fernet
 
 class collec_mac_ipv4():
 
@@ -33,3 +33,22 @@ class Token():
         print(hexadecimal_hash)
 
         return hexadecimal_hash
+
+
+class codeEncryoted():
+
+    def generate_key(self):
+        key = Fernet.generate_key()
+        return key
+    def encrypt_message(self, message, key):
+        pass
+
+
+
+class stateCode():
+    def generate_activated_state_code(self):
+        pass
+    def generate_blocked_state_code(self):
+        pass
+    def generate_neutral_state_code(self):
+        pass
