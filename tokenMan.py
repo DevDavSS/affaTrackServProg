@@ -4,15 +4,17 @@ import uuid
 import hashlib
 from cryptography.fernet import Fernet
 
+
 class collec_mac_ipv4():
 
-    def get_mac(self):
+    @staticmethod
+    def get_mac():
         mac_address = ':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff) 
                         for ele in range(0, 8*6, 8)][::-1])
         return mac_address
         
-                        
-    def get_ipv4(self):
+    @staticmethod                         
+    def get_ipv4():
         hostname = socket.gethostname()
         ipv4_adress =socket.gethostbyname(hostname)
         return ipv4_adress
@@ -35,20 +37,58 @@ class Token():
         return hexadecimal_hash
 
 
-class codeEncryoted():
+class codeEncrypted():
 
-    def generate_key(self):
+    @staticmethod
+    def generate_key():
         key = Fernet.generate_key()
+        with open("init.key","wb") as key_file:
+            key_file.write(key)
         return key
-    def encrypt_message(self, message, key):
-        pass
+    
+    @staticmethod
+    def encrypt_state_code(state_code, key):
+        fernet = Fernet(key)
+        encrypted = fernet.encrypt(state_code.encode())
+        with open("init.txt","wb") as encrypted_state_file:
+            encrypted_state_file.write(encrypted)
+
+    @staticmethod
+    def decrypt_state_code(key):
+        
+        fernet = Fernet(key)
+        with open("init.txt","rb") as encrypted_state_file:
+            encypted_state_code_founded = encrypted_state_file.read()
+        decrypted_code = fernet.decrypt(encypted_state_code_founded).decode()
+        return decrypted_code
 
 
 
 class stateCode():
-    def generate_activated_state_code(self):
-        pass
-    def generate_blocked_state_code(self):
-        pass
-    def generate_neutral_state_code(self):
-        pass
+    @staticmethod
+    def generate_activated_state_code():
+        from state import encrypted_state_code_key
+        state_code = collec_mac_ipv4.get_ipv4() + collec_mac_ipv4.get_mac() + "ActivatedStatusPassword328874k*/-"
+        new_encrypted_state_code = codeEncrypted()
+        key = new_encrypted_state_code.generate_key()
+        encrypted_state_code_key.key = key
+        new_encrypted_state_code.encrypt_state_code(state_code, key)
+
+    @staticmethod
+    def generate_blocked_state_code():
+        from state import encrypted_state_code_key
+        state_code = collec_mac_ipv4.get_ipv4() + collec_mac_ipv4.get_mac() + "blockedlStatusPasswordtjg78//-+"
+        new_encrypted_state_code = codeEncrypted()
+        key = new_encrypted_state_code.generate_key()
+        encrypted_state_code_key.key = key
+        new_encrypted_state_code.encrypt_state_code(state_code, key)
+
+    @staticmethod
+    def generate_neutral_state_code():
+        from state import encrypted_state_code_key
+        state_code = collec_mac_ipv4.get_ipv4() + collec_mac_ipv4.get_mac() + "neutralStatusPasswordtyubg24ll*-"
+        new_encrypted_state_code = codeEncrypted()
+        key = new_encrypted_state_code.generate_key()
+        encrypted_state_code_key.key = key
+        new_encrypted_state_code.encrypt_state_code(state_code, key)
+        

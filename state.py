@@ -1,12 +1,25 @@
 import  os
 import tkinter as tk
 import tokenMan
-from tokenMan import collec_mac_ipv4
+from tokenMan import collec_mac_ipv4, codeEncrypted, stateCode
 from tkinter import *
 from interfaces import mainInterface
 import sys
 from tkinter import Entry, Button
 import threading
+from main import defined_state_codes
+
+class encrypted_state_code_key():
+    @staticmethod
+    def load_key():
+        return open("init.key","rb").read()
+
+
+def decrypt_state_code_validation(key):
+    new_decrypted_state_code = codeEncrypted.decrypt_state_code(key)
+    return new_decrypted_state_code
+
+
 
 class activation_interface():
     def __init__(self):
@@ -96,32 +109,36 @@ class activation_interface():
 
 class programState():
 
+    def checkProgramStateExists(self):
+        with open("init.txt", "r") as f:
+            code = f.read().split()
+        return code
+
     def blockProgram(self):
         print("The program is blocked")
-        with open("init.txt","w") as s:
-            s.write("10001101000110010011001010010010010001100110100111")
-        exit()
+        new_encrypted_state_code_file = stateCode.generate_blocked_state_code()
 
     def activatedProgram(self):
         print("program activated")
-        with open("init.txt", "w") as s:
-            s.write("011000010011100100100111001010010011")
-        exit()
+        new_encrypted_state_code_file = stateCode.generate_activated_state_code()
 
-    def firstExecute(self):
-        with open("init.txt", "w") as s:
-            s.write("0100010010101110100110100101010100100000100100001000100010000111111001001001001001011")
+    def neutralProgram(self):
+        new_encrypted_state_code_file = stateCode.generate_neutral_state_code()
+    
 
     def verifyState(self):
         
         if not os.path.exists("init.txt"):
+      
             return False
-            
+        elif os.path.exists("init.txt") and not self.checkProgramStateExists():
+            stateCode.generate_neutral_state_code()
+            self.verifyState()
+
         else:
-            with open("init.txt", "r") as s:
-                state = s.read().strip()
-                return state
         
+            state = decrypt_state_code_validation(encrypted_state_code_key.load_key())
+            return state
 
             
 
