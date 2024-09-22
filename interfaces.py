@@ -2,8 +2,6 @@ import tkinter as tk
 from tkinter import *
 from tkinter import ttk
 import sys
-import tokenMan
-from tokenMan import collec_mac_ipv4
 import threading
 import server
 import requests
@@ -17,84 +15,6 @@ from settings import config
 #openTunnel = True
 configP = config()
 
-
-class activation_interface():
-    def run_activation_interface(self):
-
-        mac_collector = collec_mac_ipv4()  
-        ipv4_collector = collec_mac_ipv4()  
-
-        def get_identifiers(newMAc = mac_collector, newIpv4 = ipv4_collector):
-            identifiers = {'Mac':newMAc, 'ipv4':newIpv4}
-            return identifiers
-
-
-
-        def compare_tokens(token):
-            userToken = tokenEntry.get()
-
-           #//validacion de token usuario y token generado
-
-            while True:
-                if userToken == token:
-                    print("validado con exito")
-                    activWind.destroy()
-                    new_main_interface = mainInterface()
-                    new_main_interface.run_main_interface()
-   
-
-                    break
-                else:
-
-                    activWind.destroy()
-                    print("token no valido")
-                    break
- 
-            print(userToken)
-
-        def closeProgram():
-            sys.exit()
-
-        identifiers = get_identifiers()
-
-        newGenToken = tokenMan.Token(*identifiers)
-        token = newGenToken.generate_token()
-
-        activWind = tk.Tk()
-        activWind.title("AffaTrack Activation Window")
-        activWind.geometry("800x500")
-        activWind.configure(bg="black")
-        title = tk.Label(activWind, 
-            text="AffaTrack",
-            bg="black", 
-            fg="red", 
-            font=("Helvetica",40,"bold"), 
-            anchor="center"
-            ).pack(side="top", fill="both", anchor="n",pady=10)
-
-        instructionsLabel1 = tk.Label(activWind,
-            text="Enter the provided activation Token to start",
-            bg = "black",
-            fg = "white",
-            font=20,
-            anchor="center",
-  
-        ).pack(fill="both",anchor="n", pady=20,)
-
-        tokenEntry = Entry(activWind, width=40)
-        tokenEntry.pack(anchor="n", pady= 20)
-
-        activateButton = Button(activWind, 
-            text="Activate", 
-            width=20 , 
-            bg="#999595", fg="black" 
-            ,command=lambda: compare_tokens(token)
-            ).pack(pady=50)
-
-
-        exitButton = Button(activWind, text="Exit", width=20 , bg="#999595", fg="black" ,command=closeProgram).pack(pady=20)
-
-        activWind.mainloop()
 
 
 
