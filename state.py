@@ -108,6 +108,10 @@ class programState():
             s.write("011000010011100100100111001010010011")
         exit()
 
+    def firstExecute(self):
+        with open("init.txt", "w") as s:
+            s.write("0100010010101110100110100101010100100000100100001000100010000111111001001001001001011")
+
     def verifyState(self):
         
         if not os.path.exists("init.txt"):

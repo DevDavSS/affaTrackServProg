@@ -428,7 +428,3 @@ class settings_interface():
 
     
         settingsWind.mainloop()
-
-
-window = mainInterface()
-window.run_main_interface()
