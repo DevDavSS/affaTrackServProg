@@ -103,7 +103,14 @@ class activation_interface():
 
         self.errorLabel = tk.Label(activWind, text="", bg="black", fg="red", font=16) 
         self.errorLabel.pack(anchor="n", pady=10)
-
+        self.ipv4Widget = Label(activWind, 
+            text=ipv4_collector.get_ipv4(),
+             bg="black", fg="green", font=10
+            ).pack()
+        self.macWidget = Label(activWind, 
+            text=mac_collector.get_mac(),
+            bg="black", fg="green", font=10
+            ).pack()
         activWind.mainloop()
 
 
