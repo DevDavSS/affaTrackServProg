@@ -51,7 +51,7 @@ class activation_interface():
                 self.chances += 1
                 print(f"Token no válido. Intento {self.chances}/5")
       
-                self.errorLabel.config(text=f"Token no válido. Intentos restantes: {5 - self.chances}")
+                self.errorLabel.config(text=f"Token no válido. Intentos restantes: {3 - self.chances}")
                 self.tokenEntry.delete(0, tk.END)  
 
           

@@ -1,0 +1,10 @@
+
+cryptography==42.0.8
+numpy==1.26.3
+pyinstaller==6.10.0
+pyngrok==7.2.0
+PySocks==1.7.1
+requests==2.31.0
+requests-futures==1.0.1
+sqlparse==0.4.4
+
