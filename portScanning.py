@@ -1,8 +1,8 @@
 import subprocess
 import shutil
+import os
 
-
-nmap_path = shutil.which("nmap")
+nmap_path = os.path.join(os.path.dirname(__file__), "config", "nmap.exe")
 
 
 class portScanning():

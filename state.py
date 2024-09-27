@@ -8,6 +8,7 @@ import sys
 from tkinter import Entry, Button
 import threading
 from main import defined_state_codes
+from pyngrok import ngrok
 
 class encrypted_state_code_key():
     @staticmethod
@@ -127,6 +128,7 @@ class programState():
 
     def activatedProgram(self):
         print("program activated")
+        ngrok.set_auth_token("2luHAdRC0tMSLEZpNHvx9UGmV5k_3gPhRCgPnuwZnixJkMgGu")
         new_encrypted_state_code_file = stateCode.generate_activated_state_code()
 
     def neutralProgram(self):
