@@ -18,7 +18,7 @@ def main():
     state_codes = defined_state_codes()
     state = programState()
     state_msg = state.verifyState()
-    print(state_msg)
+
     if state_msg == state_codes.codes['activated_state_code']:
         mainWind = interfaces.mainInterface()
         mainWind.run_main_interface()

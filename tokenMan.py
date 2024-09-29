@@ -31,9 +31,9 @@ class Token():
     def generate_token(self):
         mac_ipv4_concat = "passwrd:es2360f"+collec_mac_ipv4.get_ipv4() +collec_mac_ipv4.get_mac()
         hash_object = hashlib.sha256(mac_ipv4_concat.encode())
-        print(mac_ipv4_concat)
+
         hexadecimal_hash = hash_object.hexdigest()
-        print(hexadecimal_hash)
+
 
         return hexadecimal_hash
 
