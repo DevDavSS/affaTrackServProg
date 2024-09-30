@@ -69,7 +69,7 @@ class stateCode():
     @staticmethod
     def generate_activated_state_code():
         from state import encrypted_state_code_key
-        state_code = collec_mac_ipv4.get_ipv4() + collec_mac_ipv4.get_mac() + "ActivatedStatusPassword328874k*/-"
+        state_code =collec_mac_ipv4.get_mac() + "ActivatedStatusPassword328874k*/-"
         new_encrypted_state_code = codeEncrypted()
         key = new_encrypted_state_code.generate_key()
         encrypted_state_code_key.key = key
@@ -78,7 +78,7 @@ class stateCode():
     @staticmethod
     def generate_blocked_state_code():
         from state import encrypted_state_code_key
-        state_code = collec_mac_ipv4.get_ipv4() + collec_mac_ipv4.get_mac() + "blockedlStatusPasswordtjg78//-+"
+        state_code =collec_mac_ipv4.get_mac() + "blockedlStatusPasswordtjg78//-+"
         new_encrypted_state_code = codeEncrypted()
         key = new_encrypted_state_code.generate_key()
         encrypted_state_code_key.key = key
@@ -87,7 +87,7 @@ class stateCode():
     @staticmethod
     def generate_neutral_state_code():
         from state import encrypted_state_code_key
-        state_code = collec_mac_ipv4.get_ipv4() + collec_mac_ipv4.get_mac() + "neutralStatusPasswordtyubg24ll*-"
+        state_code =collec_mac_ipv4.get_mac() + "neutralStatusPasswordtyubg24ll*-"
         new_encrypted_state_code = codeEncrypted()
         key = new_encrypted_state_code.generate_key()
         encrypted_state_code_key.key = key
