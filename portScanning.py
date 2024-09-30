@@ -1,23 +1,25 @@
-import subprocess
-import shutil
-import os
-
-nmap_path = os.path.join(os.path.dirname(__file__), "config", "nmap.exe")
+import nmap
 
 
-class portScanning():
+class portScanning:
 
-    def scan_open_ports(self, host = "localhost"):
+    def scan_open_ports(self, host="localhost"):
         try:
-            result = subprocess.run([nmap_path, "-p-", host], capture_output=True, text=True)
+            nm = nmap.PortScanner()
+
+            nm.scan('127.0.0.1', '1-65535', arguments="-T4")
+            
             open_ports = []
-            for line in result.stdout.splitlines():
-                if "open" in line:
-                    port = line.split("/")[0]
-                    open_ports.append(int(port))
-            print("Error:", result.stderr)
+
+            if '127.0.0.1' in nm.all_hosts():
+                for proto in nm['127.0.0.1'].all_protocols():
+                    lport = nm['127.0.0.1'][proto].keys()
+                    for port in lport:
+                        if nm['127.0.0.1'][proto][port]['state'] == 'open':
+                            open_ports.append(port)
+            else:
+                print(f"No hosts found for {host}")
+            
             return open_ports
         except Exception as e:
-            print("error: ", e)
-
-
+            print("Error: ", e)
