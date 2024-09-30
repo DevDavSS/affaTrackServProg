@@ -7,9 +7,9 @@ class defined_state_codes():
     def __init__(self):
         mac_ipv4_collector = collec_mac_ipv4()  
         self.codes = {
-            'neutral_state_code':mac_ipv4_collector.get_mac() + "neutralStatusPasswordtyubg24ll*-",
-            'blocked_state_code': mac_ipv4_collector.get_mac() + "blockedStatusPasswordtjg78//-+",
-            'activated_state_code':mac_ipv4_collector.get_mac() + "ActivatedStatusPassword328874k*/-"
+            'neutral_state_code':collec_mac_ipv4.get_gateway() + mac_ipv4_collector.get_mac() + "neutralStatusPasswordtyubg24ll*-",
+            'blocked_state_code': collec_mac_ipv4.get_gateway() + mac_ipv4_collector.get_mac() + "blockedStatusPasswordtjg78//-+",
+            'activated_state_code':collec_mac_ipv4.get_gateway() + mac_ipv4_collector.get_mac() + "ActivatedStatusPassword328874k*/-"
         }
 
 

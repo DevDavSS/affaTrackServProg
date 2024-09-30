@@ -3,6 +3,7 @@ import socket
 import uuid
 import hashlib
 from cryptography.fernet import Fernet
+from scapy.all import conf 
 
 
 class collec_mac_ipv4():
@@ -19,6 +20,11 @@ class collec_mac_ipv4():
         ipv4_adress =socket.gethostbyname(hostname)
         return ipv4_adress
     
+    @staticmethod
+    def get_gateway():
+
+        gateway = conf.route.route("0.0.0.0")[2]
+        return gateway
 
 
 
@@ -69,7 +75,7 @@ class stateCode():
     @staticmethod
     def generate_activated_state_code():
         from state import encrypted_state_code_key
-        state_code =collec_mac_ipv4.get_mac() + "ActivatedStatusPassword328874k*/-"
+        state_code =collec_mac_ipv4.get_gateway() +collec_mac_ipv4.get_mac() + "ActivatedStatusPassword328874k*/-"
         new_encrypted_state_code = codeEncrypted()
         key = new_encrypted_state_code.generate_key()
         encrypted_state_code_key.key = key
@@ -78,7 +84,7 @@ class stateCode():
     @staticmethod
     def generate_blocked_state_code():
         from state import encrypted_state_code_key
-        state_code =collec_mac_ipv4.get_mac() + "blockedlStatusPasswordtjg78//-+"
+        state_code =collec_mac_ipv4.get_gateway() +collec_mac_ipv4.get_mac() + "blockedlStatusPasswordtjg78//-+"
         new_encrypted_state_code = codeEncrypted()
         key = new_encrypted_state_code.generate_key()
         encrypted_state_code_key.key = key
@@ -87,7 +93,7 @@ class stateCode():
     @staticmethod
     def generate_neutral_state_code():
         from state import encrypted_state_code_key
-        state_code =collec_mac_ipv4.get_mac() + "neutralStatusPasswordtyubg24ll*-"
+        state_code =collec_mac_ipv4.get_gateway() + collec_mac_ipv4.get_mac() + "neutralStatusPasswordtyubg24ll*-"
         new_encrypted_state_code = codeEncrypted()
         key = new_encrypted_state_code.generate_key()
         encrypted_state_code_key.key = key
