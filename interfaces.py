@@ -132,7 +132,7 @@ class tunnel_creator_interface():
                 command= lambda: stopTunnelUrl(new_url,http_tunel,show_generated_url, stopTunnelButton, startServerButton)
             )
             hilo = threading.current_thread()
-            print(hilo)
+            #print(hilo)
             stopTunnelButton.pack(pady=15)
 
         def start_server_interface(url,startServerButton):
