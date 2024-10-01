@@ -7,9 +7,9 @@ class defined_state_codes():
     def __init__(self):
         mac_ipv4_collector = collec_mac_ipv4()  
         self.codes = {
-            'neutral_state_code':collec_mac_ipv4.get_gateway() + mac_ipv4_collector.get_mac() + "neutralStatusPasswordtyubg24ll*-",
-            'blocked_state_code': collec_mac_ipv4.get_gateway() + mac_ipv4_collector.get_mac() + "blockedStatusPasswordtjg78//-+",
-            'activated_state_code':collec_mac_ipv4.get_gateway() + mac_ipv4_collector.get_mac() + "ActivatedStatusPassword328874k*/-"
+            'neutral_state_code':mac_ipv4_collector.get_mac() + "neutralStatusPasswordtyubg24ll*-",
+            'blocked_state_code': mac_ipv4_collector.get_mac() + "blockedStatusPasswordtjg78//-+",
+            'activated_state_code':mac_ipv4_collector.get_mac() + "ActivatedStatusPassword328874k*/-"
         }
 
 
@@ -18,7 +18,7 @@ def main():
     state_codes = defined_state_codes()
     state = programState()
     state_msg = state.verifyState()
-
+    #print(state_msg)
     if state_msg == state_codes.codes['activated_state_code']:
         mainWind = interfaces.mainInterface()
         mainWind.run_main_interface()
