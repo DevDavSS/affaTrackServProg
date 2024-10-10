@@ -5,6 +5,7 @@ import hashlib
 from cryptography.fernet import Fernet
 import base64
 
+
 class collec_mac_ipv4():
 
     @staticmethod
@@ -29,7 +30,7 @@ class Token():
 
 
     def generate_token(self):
-        mac_ipv4_concat = "passwrd:es2360f"+collec_mac_ipv4.get_ipv4() +collec_mac_ipv4.get_mac()
+        mac_ipv4_concat = "kEWF#$%23-fdG##$@$&&(^5'')]66*/--++12!!#345%^&^&%443@@%^*(#@)~12#"+collec_mac_ipv4.get_ipv4() +collec_mac_ipv4.get_mac()
         hash_object = hashlib.sha256(mac_ipv4_concat.encode())
 
         hexadecimal_hash = hash_object.hexdigest()
@@ -49,7 +50,7 @@ class codeEncrypted():
     
     @staticmethod
     def encrypt_state_code(state_code, key):
-        key_word = "hguihgJuJ/9*1*895234+`ç´+l5SS"
+        key_word = "hguihgJuJ/*9**1*895234+`ç´+l5SS"
         concatenated_key = key + key_word.encode()
         derived_key = hashlib.sha256(concatenated_key).digest()
         final_key = base64.urlsafe_b64encode(derived_key)
@@ -61,8 +62,7 @@ class codeEncrypted():
 
     @staticmethod
     def decrypt_state_code(key):
-        
-        key_word = "hguihgJuJ/9*1*895234+`ç´+l5SS"
+        key_word = "hguihgJuJ/*9**1*895234+`ç´+l5SS"
         concatenated_key = key + key_word.encode()
         derived_key = hashlib.sha256(concatenated_key).digest()
         final_key = base64.urlsafe_b64encode(derived_key)
@@ -79,7 +79,7 @@ class stateCode():
     @staticmethod
     def generate_activated_state_code():
         from state import encrypted_state_code_key
-        state_code =collec_mac_ipv4.get_mac() + "ActivatedStatusPassword328874k*/-"
+        state_code =collec_mac_ipv4.get_mac() + "71#$%@#5^%^#&*jhg&jdS$%0-=)7+_=k*/-"
         new_encrypted_state_code = codeEncrypted()
         key = new_encrypted_state_code.generate_key()
         encrypted_state_code_key.key = key
@@ -88,7 +88,7 @@ class stateCode():
     @staticmethod
     def generate_blocked_state_code():
         from state import encrypted_state_code_key
-        state_code =collec_mac_ipv4.get_mac() + "blockedlStatusPasswordtjg78//-+"
+        state_code =collec_mac_ipv4.get_mac() + "-5=56&*(#$4$opn433*/--+!@sf''8*6fgd"
         new_encrypted_state_code = codeEncrypted()
         key = new_encrypted_state_code.generate_key()
         encrypted_state_code_key.key = key
@@ -97,7 +97,7 @@ class stateCode():
     @staticmethod
     def generate_neutral_state_code():
         from state import encrypted_state_code_key
-        state_code =collec_mac_ipv4.get_mac() + "neutralStatusPasswordtyubg24ll*-"
+        state_code =collec_mac_ipv4.get_mac() + "uieg$%^@gfW#%*--*+43=89=#@DG46H7!@$^&"
         new_encrypted_state_code = codeEncrypted()
         key = new_encrypted_state_code.generate_key()
         encrypted_state_code_key.key = key

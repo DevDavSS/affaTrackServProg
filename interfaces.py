@@ -7,7 +7,7 @@ import server
 import requests
 import time
 from server import HTTPServerWrapper
-from portScanning import portScanning
+
 from settings import config
 
 
@@ -132,7 +132,7 @@ class tunnel_creator_interface():
                 command= lambda: stopTunnelUrl(new_url,http_tunel,show_generated_url, stopTunnelButton, startServerButton)
             )
             hilo = threading.current_thread()
-            #print(hilo)
+            print(hilo)
             stopTunnelButton.pack(pady=15)
 
         def start_server_interface(url,startServerButton):
@@ -394,23 +394,15 @@ class settings_interface():
 
                 if tunnelPortEntrySpace.get() == serverPortEntrySpace.get() and int(tunnelPortEntrySpace.get())<65535 and int(tunnelPortEntrySpace.get())>0:
                     try:
-                        localPorts = []
-                        newLocalPorts = portScanning()
-                        localPorts = newLocalPorts.scan_open_ports()
                         givenPort = serverPortEntrySpace.get() 
-                        if int(givenPort) in localPorts:
-                            errorLabel.config(
-                                text="The port is already in use"
-                            )
-                            errorLabel.grid(column=1, row=6)
-                        else:
-                            settingsWind.destroy()
-                            configP.customedServerSettings["port"] = givenPort
-                            configP.customedTunnelSettings["port"] = givenPort
-                            config.defaultServerSettingsFlag = False
-                            config.defaultTunnelSettingsFlag = False
-                            mainWindow = mainInterface()
-                            mainWindow.run_main_interface()
+       
+                        settingsWind.destroy()
+                        configP.customedServerSettings["port"] = givenPort
+                        configP.customedTunnelSettings["port"] = givenPort
+                        config.defaultServerSettingsFlag = False
+                        config.defaultTunnelSettingsFlag = False
+                        mainWindow = mainInterface()
+                        mainWindow.run_main_interface()
 
 
                     except Exception as e:
